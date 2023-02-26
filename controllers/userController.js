@@ -42,13 +42,13 @@ class UserController {
     try {
       const { email, password } = req.body
       if (email && password) {
-        const user = await UserModel.findOne({ email: email })
+        const user = await UserModel.findOne({ email: email });
         if (user != null) {
           const isMatch = await bcrypt.compare(password, user.password)
           if ((user.email === email) && isMatch) {
             // Generate JWT Token
             const token = jwt.sign({ userID: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '5d' })
-            res.send({ "status": "success", "message": "Login Success", "token": token })
+            res.send({ "status": "success", "message": "Login Success", "token": token,"user": user.name })
           } else {
             res.send({ "status": "failed", "message": "Email or Password is not Valid" })
           }
@@ -131,6 +131,16 @@ class UserController {
     } catch (error) {
       console.log(error)
       res.send({ "status": "failed", "message": "Invalid Token" })
+    }
+  }
+
+  static admin = async (req, res) => {
+    try {
+      const user = await UserModel.find();
+      res.send(user);
+    } catch (error) {
+      // console.log(error)
+      res.send({ "status": "failed", "message": "Not able to find user" });
     }
   }
 }
